@@ -1,0 +1,117 @@
+
+@startuml
+title BLOOD DONATION MANAGEMENT SYSTEM\nCLASS DIAGRAM
+
+' Overall Styling
+skinparam backgroundColor #FFFFFF
+skinparam shadowing true
+skinparam roundcorner 15
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #475569
+skinparam ArrowThickness 1.5
+
+' Class Colors
+skinparam class {
+    BackgroundColor #E0F2FE
+    BorderColor #0284C7
+    FontColor #0F172A
+}
+
+skinparam classBackgroundColor<<User>> #DBEAFE
+skinparam classBorderColor<<User>> #2563EB
+
+class User <<User>> {
+    - userId : int
+    - name : String
+    - email : String
+    - password : String
+    - role : String
+    - phone : String
+    + register() : void
+    + login() : boolean
+    + updateProfile() : void
+}
+
+class DonorRegistration {
+    - donorId : int
+    - userId : int
+    - bloodGroup : String
+    - age : int
+    - gender : String
+    - address : String
+    + registerDonor() : void
+    + updateDonor() : void
+}
+
+class DonorAvailability {
+    - availabilityId : int
+    - donorId : int
+    - isAvailable : boolean
+    - lastDonationDate : Date
+    + checkAvailability() : boolean
+    + updateAvailability() : void
+}
+
+class BloodRequest {
+    - requestId : int
+    - userId : int
+    - bloodGroup : String
+    - unitsRequired : int
+    - hospitalName : String
+    - requestDate : Date
+    - status : String
+    + createRequest() : void
+    + updateStatus() : void
+}
+
+class DonationRecord {
+    - donationId : int
+    - donorId : int
+    - requestId : int
+    - donationDate : Date
+    - unitsDonated : int
+    + addRecord() : void
+    + viewRecord() : void
+}
+
+class BloodRequestStatus {
+    - statusId : int
+    - requestId : int
+    - status : String
+    - updatedAt : Date
+    + updateStatus() : void
+    + getStatus() : String
+}
+
+class DBConnection {
+    - url : String
+    - username : String
+    - password : String
+    + getConnection() : Connection
+    + closeConnection() : void
+}
+
+class Reports {
+    + generateDonorReport() : void
+    + generateRequestReport() : void
+    + generateDonationReport() : void
+}
+
+' Class Relationships
+User "1" -- "0..1" DonorRegistration : registers
+DonorRegistration "1" -- "0..*" DonorAvailability : manages
+User "1" -- "0..*" BloodRequest : creates
+DonorRegistration "1" -- "0..*" DonationRecord : donates
+BloodRequest "1" -- "0..*" DonationRecord : receives
+BloodRequest "1" -- "0..*" BloodRequestStatus : tracks
+
+DBConnection ..> User : database access
+DBConnection ..> DonorRegistration
+DBConnection ..> BloodRequest
+DBConnection ..> DonationRecord
+Reports ..> DBConnection : retrieves data
+
+@enduml

@@ -1,0 +1,58 @@
+
+@startuml
+title System Architecture - Blood Donation Management System
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+actor User
+
+node "Client Layer" {
+    component "Web Browser" as browser
+    component "HTML Pages" as html
+    component "CSS Styling" as css
+    component "JavaScript" as js
+}
+
+node "Application Layer" {
+    component "Java Web Server" as server
+
+    component "User Management" as user
+    component "Donor Registration" as donor
+    component "Blood Request Management" as request
+    component "Donor Availability" as availability
+    component "Donation Records" as records
+    component "Reports Module" as reports
+}
+
+node "Database Layer" {
+    database "Blood Donation Database" as db
+    component "JDBC Database Connection" as jdbc
+}
+
+User --> browser
+browser --> html
+html --> css
+html --> js
+
+js --> server : HTTP Requests
+
+server --> user
+server --> donor
+server --> request
+server --> availability
+server --> records
+server --> reports
+
+user --> jdbc
+donor --> jdbc
+request --> jdbc
+availability --> jdbc
+records --> jdbc
+reports --> jdbc
+
+jdbc --> db : SQL Queries
+db --> jdbc : Query Results
+
+@enduml

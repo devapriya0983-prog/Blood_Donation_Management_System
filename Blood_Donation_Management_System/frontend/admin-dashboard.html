@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - LifeSaver</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+        }
+
+        header {
+            background: #b71c1c;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 25px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: white;
+            color: #b71c1c;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 35px;
+        }
+
+        .welcome {
+            margin-bottom: 25px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h2 {
+            color: #b71c1c;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .card button {
+            background: #b71c1c;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>LifeSaver - Admin</h1>
+    <button onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+    <div class="welcome">
+        <h2>Welcome, Admin!</h2>
+        <p>Manage blood donation activities.</p>
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+            <h2>Blood Requests</h2>
+            <p>View and manage all blood requests.</p>
+            <button onclick="location.href='admin-requests.html'">
+                View Requests
+            </button>
+        </div>
+
+        <div class="card">
+            <h2>Donors</h2>
+            <p>Manage registered blood donors.</p>
+            <button onclick="location.href='admin-donors.html'">
+                View Donors
+            </button>
+        </div>
+
+        <div class="card">
+            <h2>Blood Stock</h2>
+            <p>Manage available blood stock.</p>
+            <button onclick="location.href='admin-stock.html'">
+                View Stock
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+async function checkAdminAccess() {
+    try {
+        const response = await fetch("/api/admin/check", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        if (response.status === 401) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (response.status === 403) {
+            alert("Access Denied! Admins only.");
+            window.location.href = "dashboard.html";
+            return;
+        }
+
+        if (!response.ok) {
+            alert("Unable to verify admin access.");
+            window.location.href = "login.html";
+        }
+
+    } catch (error) {
+        alert("Server connection failed!");
+        window.location.href = "login.html";
+    }
+}
+
+checkAdminAccess();
+
+async function logout() {
+    const response = await fetch("/api/logout", {
+        method: "POST",
+        credentials: "same-origin"
+    });
+
+    if (response.ok) {
+        window.location.href = "login.html";
+    } else {
+        alert("Logout failed!");
+    }
+}
+</script>
+
+
+</body>
+</html>

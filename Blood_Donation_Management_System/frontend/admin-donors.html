@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeSaver - Manage Donors</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            color: #333;
+        }
+
+        header {
+            background: #c62828;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #c62828;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #c62828;
+            color: white;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: #c62828;
+            text-decoration: none;
+        }
+
+        button {
+            background: #c62828;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>LifeSaver - Admin</h2>
+    <a href="admin-dashboard.html">Dashboard</a>
+</header>
+
+<div class="container">
+
+    <h1>Registered Blood Donors</h1>
+
+    <div class="card">
+
+        <button onclick="loadDonors()">Refresh Donors</button>
+
+        <p id="message">Loading donors...</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Donor Name</th>
+                    <th>Blood Group</th>
+                    <th>City</th>
+                </tr>
+            </thead>
+
+            <tbody id="donorTable">
+            </tbody>
+        </table>
+
+    </div>
+
+    <a href="admin-dashboard.html" class="back">
+        Back to Admin Dashboard
+    </a>
+
+</div>
+
+<script>
+
+async function loadDonors() {
+
+    const message = document.getElementById("message");
+    const table = document.getElementById("donorTable");
+
+    message.textContent = "Loading donors...";
+    table.innerHTML = "";
+
+    try {
+
+        const response = await fetch("/api/donors", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        if (response.status === 401) {
+            message.textContent = "Please login again.";
+            return;
+        }
+
+        if (!response.ok) {
+            message.textContent = "Unable to load donors.";
+            return;
+        }
+
+        const donors = await response.json();
+
+        if (donors.length === 0) {
+            message.textContent = "No donors found.";
+            return;
+        }
+
+        donors.forEach(function(donor) {
+
+            const row = document.createElement("tr");
+
+            const nameCell = document.createElement("td");
+            nameCell.textContent = donor.name;
+
+            const bloodCell = document.createElement("td");
+            bloodCell.textContent = donor.blood_group;
+
+            const cityCell = document.createElement("td");
+            cityCell.textContent = donor.city;
+
+            row.append(nameCell, bloodCell, cityCell);
+            table.appendChild(row);
+
+        });
+
+        message.textContent = "Donors loaded successfully.";
+
+    } catch (error) {
+
+        message.textContent = "Server connection failed.";
+        console.error(error);
+
+    }
+}
+
+loadDonors();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Blood Requests - LifeSaver</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+        }
+
+        header {
+            background: #b71c1c;
+            color: white;
+            padding: 20px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .request-card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .request-card p {
+            margin: 9px 0;
+            color: #444;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .approve {
+            background: #2e7d32;
+        }
+
+        .reject {
+            background: #c62828;
+        }
+
+        .actions button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .empty {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        @media(max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            header {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>LifeSaver - Blood Requests</h2>
+    <a href="admin-dashboard.html">Back to Dashboard</a>
+</header>
+
+<div class="container">
+    <h2>All Blood Requests</h2>
+    <div id="requestList">Loading requests...</div>
+</div>
+
+<script>
+
+async function checkAdminAccess() {
+    const response = await fetch("/api/admin/check", {
+        credentials: "same-origin"
+    });
+
+    if (response.status === 401) {
+        window.location.href = "login.html";
+        return false;
+    }
+
+    if (response.status === 403) {
+        alert("Admin access only!");
+        window.location.href = "dashboard.html";
+        return false;
+    }
+
+    return response.ok;
+}
+
+
+// LOAD ALL REQUESTS
+async function loadRequests() {
+
+    const allowed = await checkAdminAccess();
+
+    if (!allowed) return;
+
+    const requestList = document.getElementById("requestList");
+
+    try {
+        const response = await fetch("/api/admin/requests", {
+            credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+            requestList.textContent =
+                "Unable to load requests. Status: " + response.status;
+            return;
+        }
+
+        const requests = await response.json();
+
+        if (requests.length === 0) {
+            requestList.innerHTML =
+                '<div class="empty">No blood requests found.</div>';
+            return;
+        }
+
+        requestList.innerHTML = "";
+
+        requests.forEach(request => {
+
+            const card = document.createElement("div");
+            card.className = "request-card";
+
+            const fields = [
+                ["Request ID", request.request_id],
+                ["Patient Name", request.patient_name],
+                ["Blood Group", request.blood_group],
+                ["Units Required", request.units_required],
+                ["Hospital", request.hospital_name],
+                ["City", request.city],
+                ["Contact", request.contact_number],
+                ["Request Date", request.request_date],
+                ["Status", request.status]
+            ];
+
+            fields.forEach(([label, value]) => {
+
+                const p = document.createElement("p");
+                const strong = document.createElement("strong");
+
+                strong.textContent = label + ": ";
+                p.appendChild(strong);
+
+                p.appendChild(
+                    document.createTextNode(
+                        value == null ? "Not provided" : value
+                    )
+                );
+
+                if (label === "Status") {
+                    p.className = "status";
+                }
+
+                card.appendChild(p);
+            });
+
+            // SHOW BUTTONS ONLY FOR PENDING REQUESTS
+            if (request.status === "Pending") {
+
+                const actions = document.createElement("div");
+                actions.className = "actions";
+
+                const approveBtn = document.createElement("button");
+                approveBtn.className = "approve";
+                approveBtn.textContent = "Approve";
+
+                approveBtn.onclick = () =>
+                    updateStatus(request.request_id, "Approved");
+
+                const rejectBtn = document.createElement("button");
+                rejectBtn.className = "reject";
+                rejectBtn.textContent = "Reject";
+
+                rejectBtn.onclick = () =>
+                    updateStatus(request.request_id, "Rejected");
+
+                actions.appendChild(approveBtn);
+                actions.appendChild(rejectBtn);
+
+                card.appendChild(actions);
+            }
+
+            requestList.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error(error);
+        requestList.textContent = "Server connection failed.";
+    }
+}
+
+
+// UPDATE REQUEST STATUS
+async function updateStatus(requestId, status) {
+
+    const confirmed = confirm(
+        "Are you sure you want to " + status + " this request?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch("/api/admin/request-status", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            credentials: "same-origin",
+            body: new URLSearchParams({
+                request_id: requestId,
+                status: status
+            })
+        });
+
+        const result = await response.text();
+
+        if (response.ok) {
+            alert(result);
+            loadRequests();
+        } else {
+            alert("Error: " + result);
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert("Server connection failed.");
+    }
+}
+
+loadRequests();
+
+</script>
+
+</body>
+</html>

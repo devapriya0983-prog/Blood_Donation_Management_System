@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeSaver - Donor Profile</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            color: #333;
+        }
+
+        header {
+            background: #c62828;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            font-size: 24px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .profile-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .profile-card h1 {
+            color: #c62828;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .info {
+            padding: 15px;
+            background: #fff5f5;
+            border-radius: 8px;
+        }
+
+        .info label {
+            color: #777;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .info p {
+            font-size: 16px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .blood {
+            color: #c62828;
+            font-size: 22px !important;
+        }
+
+        #message {
+            text-align: center;
+            margin: 20px 0;
+            color: #c62828;
+        }
+
+        .back {
+            display: block;
+            width: fit-content;
+            margin: 25px auto 0;
+            background: #c62828;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>❤️ LifeSaver</h2>
+        <a href="dashboard.html">Dashboard</a>
+    </header>
+
+    <div class="container">
+
+        <div class="profile-card">
+
+            <h1>Donor Profile</h1>
+
+            <p id="message">Loading your profile...</p>
+
+            <div class="profile-info" id="profileInfo" hidden>
+
+                <div class="info">
+                    <label>Full Name</label>
+                    <p id="name"></p>
+                </div>
+
+                <div class="info">
+                    <label>Email Address</label>
+                    <p id="email"></p>
+                </div>
+
+                <div class="info">
+                    <label>Phone Number</label>
+                    <p id="phone"></p>
+                </div>
+
+                <div class="info">
+                    <label>Blood Group</label>
+                    <p id="blood_group" class="blood"></p>
+                </div>
+
+                <div class="info">
+                    <label>Age</label>
+                    <p id="age"></p>
+                </div>
+
+                <div class="info">
+                    <label>Gender</label>
+                    <p id="gender"></p>
+                </div>
+
+                <div class="info">
+                    <label>Address</label>
+                    <p id="address"></p>
+                </div>
+
+                <div class="info">
+                    <label>City</label>
+                    <p id="city"></p>
+                </div>
+
+            </div>
+
+            <a href="dashboard.html" class="back">
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+    <script>
+        async function loadProfile() {
+
+            const message = document.getElementById("message");
+            const profileInfo = document.getElementById("profileInfo");
+
+            try {
+
+                const response = await fetch("/api/profile", {
+                    method: "GET",
+                    credentials: "same-origin"
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+
+                    message.textContent =
+                        result.message || "Unable to load profile. Please login again.";
+
+                    return;
+                }
+
+                document.getElementById("name").textContent = result.name;
+                document.getElementById("email").textContent = result.email;
+                document.getElementById("phone").textContent = result.phone;
+                document.getElementById("blood_group").textContent = result.blood_group;
+                document.getElementById("age").textContent = result.age;
+                document.getElementById("gender").textContent = result.gender;
+                document.getElementById("address").textContent = result.address;
+                document.getElementById("city").textContent = result.city;
+
+                message.textContent = "";
+                profileInfo.hidden = false;
+
+            } catch (error) {
+
+                message.textContent =
+                    "Server connection failed. Please try again.";
+
+                console.error(error);
+            }
+        }
+
+        loadProfile();
+    </script>
+
+</body>
+</html>

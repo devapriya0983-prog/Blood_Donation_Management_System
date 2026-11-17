@@ -1,0 +1,71 @@
+
+@startuml
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+
+entity "Users" as users {
+  * user_id : INT <<PK>>
+  --
+  name : VARCHAR
+  email : VARCHAR
+  password : VARCHAR
+  role : VARCHAR
+  phone : VARCHAR
+}
+
+entity "Donor_Registration" as donor {
+  * donor_id : INT <<PK>>
+  --
+  user_id : INT <<FK>>
+  blood_group : VARCHAR
+  age : INT
+  gender : VARCHAR
+  address : VARCHAR
+  city : VARCHAR
+}
+
+entity "Donor_Availability" as availability {
+  * availability_id : INT <<PK>>
+  --
+  donor_id : INT <<FK>>
+  is_available : BOOLEAN
+  last_donation_date : DATE
+}
+
+entity "Blood_Requests" as requests {
+  * request_id : INT <<PK>>
+  --
+  user_id : INT <<FK>>
+  blood_group : VARCHAR
+  units_required : INT
+  hospital_name : VARCHAR
+  request_date : DATE
+  status : VARCHAR
+}
+
+entity "Donation_Records" as donation {
+  * donation_id : INT <<PK>>
+  --
+  donor_id : INT <<FK>>
+  request_id : INT <<FK>>
+  donation_date : DATE
+  units_donated : INT
+}
+
+entity "Blood_Request_Status" as status {
+  * status_id : INT <<PK>>
+  --
+  request_id : INT <<FK>>
+  status : VARCHAR
+  updated_at : DATETIME
+}
+
+users ||--o| donor : registers
+donor ||--o{ availability : manages
+users ||--o{ requests : creates
+donor ||--o{ donation : makes
+requests ||--o{ donation : receives
+requests ||--o{ status : tracks
+
+@enduml

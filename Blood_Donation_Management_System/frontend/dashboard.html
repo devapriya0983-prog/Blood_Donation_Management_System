@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeSaver - Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            color: #333;
+        }
+
+        header {
+            background: #c62828;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            font-size: 25px;
+        }
+
+        .logout {
+            background: white;
+            color: #c62828;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 40px 7%;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 {
+            color: #c62828;
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            color: #666;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            color: #c62828;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 18px;
+        }
+
+        .card button {
+            background: #c62828;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .card button:hover {
+            background: #a71919;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+
+        #statusMessage {
+            text-align: center;
+            color: #c62828;
+            margin-top: 15px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>❤️ LifeSaver</h2>
+        <button class="logout" onclick="logout()">Logout</button>
+    </header>
+
+    <div class="container">
+
+        <div class="welcome">
+            <h1>Welcome to LifeSaver!</h1>
+            <p>Every blood donor is a lifesaver. Thank you for being part of our community.</p>
+        </div>
+
+        <div class="cards">
+
+            <div class="card">
+                <h3>👤 Donor Profile</h3>
+                <p>View and manage your donor information.</p>
+                <button onclick="window.location.href='profile.html'">
+                    View Profile
+                </button>
+            </div>
+
+            <div class="card">
+                <h3>🩸 Find Blood Donors</h3>
+                <p>Find donors based on blood group and location.</p>
+                <button onclick="window.location.href='find-donors.html'">
+                    Find Donors
+                </button>
+            </div>
+
+            <div class="card">
+                <h3>📋 Blood Request</h3>
+                <p>Submit a blood request when blood is needed.</p>
+                <button onclick="window.location.href='blood-request.html'">
+                    Request Blood
+                </button>
+            </div>
+
+            <div class="card">
+                <h3>📜 My Blood Request History</h3>
+                <p>View the blood requests submitted from your account.</p>
+                <button onclick="window.location.href='request-history.html'">
+                    View Request History
+                </button>
+            </div>
+
+        </div>
+
+        <p id="statusMessage"></p>
+
+    </div>
+
+    <footer>
+        <p>© 2026 LifeSaver - Blood Donation Management System</p>
+    </footer>
+
+    <script>
+
+
+async function checkLoginAccess() {
+    try {
+        const response = await fetch("/api/profile", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        if (response.status === 401) {
+            alert("Please login first!");
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (!response.ok) {
+            alert("Unable to verify login.");
+            return;
+        }
+
+    } catch (error) {
+        alert("Server connection failed!");
+    }
+}
+
+checkLoginAccess();
+
+
+        async function logout() {
+
+            try {
+                const response = await fetch("/api/logout", {
+                    method: "POST",
+                    credentials: "same-origin"
+                });
+
+                if (response.ok) {
+                    window.location.href = "login.html";
+                } else {
+                    document.getElementById("statusMessage").textContent =
+                        "Logout failed. Please try again.";
+                }
+
+            } catch (error) {
+                document.getElementById("statusMessage").textContent =
+                    "Server connection failed.";
+            }
+        }
+    </script>
+
+</body>
+</html>

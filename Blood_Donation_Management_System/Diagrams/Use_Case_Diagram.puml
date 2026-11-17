@@ -1,0 +1,51 @@
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor User
+actor Donor
+actor Admin
+actor Hospital
+
+rectangle "Blood Donation Management System" {
+
+    usecase "Register Account" as UC1
+    usecase "Login" as UC2
+    usecase "View Profile" as UC3
+    usecase "Update Profile" as UC4
+
+    usecase "Register as Donor" as UC5
+    usecase "Manage Availability" as UC6
+    usecase "Search Blood Donors" as UC7
+
+    usecase "Create Blood Request" as UC8
+    usecase "View Request History" as UC9
+
+    usecase "Manage Donors" as UC10
+    usecase "Manage Blood Requests" as UC11
+    usecase "Manage Blood Stock" as UC12
+    usecase "View Reports" as UC13
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+
+Donor --> UC5
+Donor --> UC6
+Donor --> UC7
+
+Hospital --> UC7
+Hospital --> UC8
+Hospital --> UC9
+
+Admin --> UC2
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+Admin --> UC13
+
+@enduml
